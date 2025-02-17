@@ -1,0 +1,69 @@
+Procedimento Interno para Registro de Estoque
+
+1. ObjetivoEstabelecer diretrizes para o registro e controle de estoque, garantindo precisão nas informações, rastreabilidade dos produtos e otimização dos processos logísticos.
+
+2. AbrangênciaEste procedimento se aplica a todos os colaboradores responsáveis pelo armazenamento, movimentação e controle de estoque na empresa.
+
+3. Responsabilidades
+
+Setor de Almoxarifado: Registrar a entrada e saída de produtos no sistema de gestão de estoque.
+
+Setor de Compras: Informar ao almoxarifado sobre pedidos de reposição e prazos de entrega.
+
+Setor Financeiro: Acompanhar os registros para controle de custos e inventário.
+
+Gestão Operacional: Monitorar e auditar os registros periodicamente.
+
+4. Procedimentos
+
+4.1 Registro de Entrada de Estoque
+
+Conferir a Nota Fiscal e verificar se os produtos recebidos correspondem ao pedido realizado.
+
+Registrar a entrada no sistema de gestão, informando:
+
+Código do produto
+
+Quantidade recebida
+
+Data de entrada
+
+Fornecedor
+
+Localização no estoque
+
+Armazenar os produtos conforme as diretrizes de organização e segurança.
+
+4.2 Registro de Saída de Estoque
+
+Validar a solicitação de retirada de materiais/produtos.
+
+Registrar a saída no sistema, informando:
+
+Código do produto
+
+Quantidade retirada
+
+Data da saída
+
+Responsável pela retirada
+
+Setor ou cliente de destino
+
+Atualizar o saldo do estoque imediatamente.
+
+4.3 Inventário Periódico
+
+Realizar contagens físicas conforme o cronograma estabelecido (mensal, trimestral ou anual).
+
+Comparar os registros do sistema com os produtos em estoque.
+
+Corrigir eventuais discrepâncias e relatar à Gestão Operacional.
+
+Emitir relatório de inventário para análise.
+
+5. PenalidadesO não cumprimento deste procedimento pode resultar em advertências e medidas disciplinares, conforme a política interna da empresa.
+
+6. Revisão e AtualizaçãoEste procedimento deve ser revisado anualmente ou sempre que houver mudanças nos processos de estoque.
+
+7. AprovaçãoEste documento foi aprovado pela Diretoria em [DATA] e entra em vigor na mesma data.
