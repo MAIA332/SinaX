@@ -17,21 +17,20 @@ class RedisConcrete(RedisImplementation):
 
     def load_collections(self, collections):
         for collection in collections:
-            if not self.redis_client.exists(collection["name"]):
-                self.create_collection(collection["name"])
-                self.initialize_collection_metadata(collection["name"], collection.get("fields", []))
+            self.create_collection(collection["name"])
+            self.initialize_collection_metadata(collection.get("name",f"no-name-{str(datetime.now())}"), collection.get("fields", []),collection.get("record_count", 0),collection.get("sizeInBytes", 0))
 
-    def initialize_collection_metadata(self, collection_name, fields):
+    def initialize_collection_metadata(self, collection_name, fields,record_count=0, size_in_bytes=0):
 
         metadata_key = f"collection_metadata:{collection_name}"
-        if not self.redis_client.exists(metadata_key):
-            self.redis_client.hset(metadata_key, mapping={
-                "created_at": json.dumps(str(datetime.now())),
-                "updated_at": json.dumps(str(datetime.now())),
-                "record_count": 0,
-                "fields": json.dumps(fields),  # Armazena os campos dessa collection
-                "size_in_bytes": 0
-            })
+        
+        self.redis_client.hset(metadata_key, mapping={
+            "created_at": json.dumps(str(datetime.now())),
+            "updated_at": json.dumps(str(datetime.now())),
+            "record_count": record_count,
+            "fields": json.dumps(fields),  # Armazena os campos dessa collection
+            "size_in_bytes": size_in_bytes
+        })
 
     def update_collection_metadata(self, collection_name, increment=1, record_size=0):
 
