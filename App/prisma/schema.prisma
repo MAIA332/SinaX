@@ -12,11 +12,12 @@ generator client {
 }
 
 // ========= CACHE =================
-model CachesCollections {
+model Cachedcollections {
   id    String      @id @default(uuid()) @db.Uuid // Alterado para UUID
   name  String
   fields Json
   sizeInBytes Int      // Tamanho da collection em bytes
   createdAt   DateTime @default(now())  // Data de criação
   updatedAt   DateTime @updatedAt      // Data de atualização (automática)
+  record_count  Int @default(0)
 }

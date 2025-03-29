@@ -15,20 +15,34 @@ def intanciateRedis():
 
     return RedisConcrete(host, port, db, password)
 
-def instanciatePrisma():
+async def instanciatePrisma():
     instance = PrismaConcrete()
+    print("Connecting prisma...")
+    await instance.connect()
     return instance
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("Starting up")
     
+    print("Connecting redis...")
     internalDb = intanciateRedis()
-    internalPrisma = instanciatePrisma()
-
     print(f"Connected to redis {internalDb}")
-    print(f"Connected to prisma {internalPrisma}")
-    
+
+    #==============================================
+    internalPrisma = await instanciatePrisma()
+    print(f"Connected to prisma {internalPrisma.prisma.is_connected()}")
+
+    try:
+        cachedCollections = await internalPrisma.prisma.cachedcollections.find_many()
+        print(dict(cachedCollections[0]))
+    except Exception as e:
+        print(e)
+
+    #==============================================
+
     yield
+    await internalPrisma.disconnect()
     print("Disconnected")
 
 app = FastAPI(lifespan=lifespan)
