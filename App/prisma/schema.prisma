@@ -1,0 +1,22 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// generator
+generator client {
+  provider             = "prisma-client-py"
+  interface            = "asyncio"
+  recursive_type_depth = 5
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+// ========= CACHE =================
+model CachesCollections {
+  id    String      @id @default(uuid()) @db.Uuid // Alterado para UUID
+  name  String
+  fields Json
+  sizeInBytes Int      // Tamanho da collection em bytes
+  createdAt   DateTime @default(now())  // Data de criação
+  updatedAt   DateTime @updatedAt      // Data de atualização (automática)
+}

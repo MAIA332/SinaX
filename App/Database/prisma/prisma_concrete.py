@@ -1,0 +1,14 @@
+from .prisma_implementation import PrismaImplementation
+
+class PrismaConcrete(PrismaImplementation):
+    _instance = None 
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(PrismaConcrete, cls).__new__(cls) 
+        return cls._instance
+
+    def __init__(self):
+        if not hasattr(self, "_initialized"):
+            super().__init__()
+            self._initialized = True

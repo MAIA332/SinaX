@@ -1,2 +1,4 @@
 execution_ambient/
 .env
+services.json
+Jupyter/

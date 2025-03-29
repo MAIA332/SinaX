@@ -4,7 +4,7 @@ import random
 class LoadBalance:
     def __init__(self,llm_instances):
         self.llm_instances = llm_instances
-        self.proportion = {i["name"]:60 if len(self.llm_instances)==1 else 0 for i in self.llm_instances}
+        self.proportion = {i["name"]:120 if len(self.llm_instances)==1 else 0 for i in self.llm_instances}
         self.instance_load = {i["name"]: 0 for i in self.llm_instances}  # Track the load on each instance
 
     def set_proportion(self,proportion):
