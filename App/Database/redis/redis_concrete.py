@@ -18,7 +18,7 @@ class RedisConcrete(RedisImplementation):
     def load_collections(self, collections):
         for collection in collections:
             self.create_collection(collection["name"])
-            self.initialize_collection_metadata(collection.get("name",f"no-name-{str(datetime.now())}"), collection.get("fields", []),collection.get("record_count", 0),collection.get("sizeInBytes", 0))
+            self.update_collection_metadata(collection.get("name",f"no-name-{str(datetime.now())}"), collection.get("fields", []),collection.get("record_count", 0),collection.get("sizeInBytes", 0))
 
     def initialize_collection_metadata(self, collection_name, fields,record_count=0, size_in_bytes=0):
 
@@ -32,15 +32,15 @@ class RedisConcrete(RedisImplementation):
             "size_in_bytes": size_in_bytes
         })
 
-    def update_collection_metadata(self, collection_name, increment=1, record_size=0):
+    def update_collection_metadata(self, collection_name, fields=[],record_count=0, size_in_bytes=0,increment=1):
 
         metadata_key = f"collection_metadata:{collection_name}"
         if not self.redis_client.exists(metadata_key):
             self.initialize_collection_metadata(collection_name, [])
 
         # Incrementa o contador de registros e o tamanho da collection
-        self.redis_client.hincrby(metadata_key, "record_count", increment)
-        self.redis_client.hincrby(metadata_key, "size_in_bytes", record_size)
+        self.redis_client.hincrby(metadata_key, "record_count", record_count)
+        self.redis_client.hincrby(metadata_key, "size_in_bytes", size_in_bytes)
         self.redis_client.hset(metadata_key, "updated_at", json.dumps(str(datetime.now())))
 
     def get_collection_metadata(self, collection_name):
@@ -52,13 +52,13 @@ class RedisConcrete(RedisImplementation):
     def create_collection(self, collection_name, size_in_bytes=0):
 
         super().create_collection(collection_name)  # Mantém o comportamento da classe base
-        self.update_collection_metadata(collection_name, increment=0, record_size=size_in_bytes)  # Atualiza metadados ao criar
+        self.update_collection_metadata(collection_name, increment=0, size_in_bytes=size_in_bytes)  # Atualiza metadados ao criar
 
     def add_to_collection(self, collection_name, record):
 
         record_id = super().add_to_collection(collection_name, record)  # Chama o método da classe base
         record_size = sum(len(v.encode('utf-8')) for v in record.values())  # Calcula o tamanho do registro
-        self.update_collection_metadata(collection_name, increment=1, record_size=record_size)  # Atualiza metadados
+        self.update_collection_metadata(collection_name, increment=1, size_in_bytes=record_size)  # Atualiza metadados
         return record_id
 
     def delete_from_collection(self, collection_name, record_id):

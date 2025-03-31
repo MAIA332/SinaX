@@ -6,6 +6,7 @@ from Database.redis.redis_concrete import RedisConcrete
 from Database.prisma.prisma_concrete import PrismaConcrete
 import os
 
+
 def intanciateRedis():
 
     host = os.getenv("REDIS_HOST")
@@ -27,7 +28,7 @@ async def lifespan(app: FastAPI):
     
     print("Connecting redis...")
     internalDb = intanciateRedis()
-    print(f"Connected to redis {internalDb}")
+    print(f"Connected to redis {internalDb.redis_client.ping()}")
 
     #==============================================
     internalPrisma = await instanciatePrisma()
@@ -35,7 +36,11 @@ async def lifespan(app: FastAPI):
 
     try:
         cachedCollections = await internalPrisma.prisma.cachedcollections.find_many()
-        print(dict(cachedCollections[0]))
+        
+        parsed_collections = [dict(c) for c in cachedCollections]
+
+        internalDb.load_collections(parsed_collections)
+
     except Exception as e:
         print(e)
 

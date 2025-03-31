@@ -66,6 +66,23 @@ class RedisImplementation:
             records.append(record_deserialized)
         return records
     
+    def get_all_collections(self):
+        keys = self.redis_client.keys("*:*")  # Pega todas as chaves que seguem o padrão "collection_name:*"
+        collections = {}
+
+        for key in keys:
+            collection_name, record_id = key.split(":", 1)  # Divide o nome da coleção e o ID do registro
+            record = self.redis_client.hgetall(key)
+            
+            record_deserialized = {k: json.loads(v) if self._is_json(v) else v for k, v in record.items()}
+            
+            if collection_name not in collections:
+                collections[collection_name] = []
+            
+            collections[collection_name].append(record_deserialized)
+
+        return collections
+
     def delete_collection(self, collection_name,record_id):
         key = f"{collection_name}:{record_id}"
         self.redis_client.delete(key)
