@@ -34,17 +34,35 @@ class PyGroq(WorkspacesMng):
 
     
     def quest_something(self,input,workspaceId):
-
         if isinstance(workspaceId, str):
             workspaceId = uuid.UUID(workspaceId)
 
+        # Get system messages from workspace
         messages = [j for i in self.instance_data["workspace"] if i["id"] == workspaceId for j in i["config"]["system_paradigma"]]
         
+        # Update workspace with user message
         updated_workspace = self.update_workspace_history({"role":"user","content":input},workspaceId)
+        
+        # Check if workspace was found
+        if isinstance(updated_workspace, dict) and "message" in updated_workspace:
+            # Create new workspace with the provided ID
+            self.instance_data["workspace"].append({
+                "id": workspaceId,
+                "messages": [],
+                "config": {
+                    "system_paradigma": [],
+                    "name": f"Workspace {str(workspaceId)[:8]}",
+                    "history_limit": 5
+                }
+            })
+            # Try updating workspace again
+            updated_workspace = self.update_workspace_history({"role":"user","content":input},workspaceId)
 
-        for i in updated_workspace["messages"]:
-            messages.append(i)
+        # Add conversation history to messages
+        for message in updated_workspace["messages"]:
+            messages.append(message)
 
+        # Get completion from Groq
         chat_completion = self.client.chat.completions.create(
             messages=messages,
             temperature=self.instance_data["hiper_params"]["temperature"],
@@ -58,7 +76,8 @@ class PyGroq(WorkspacesMng):
 
         response = chat_completion.choices[0].message.content
 
-        updated_workspace = self.update_workspace_history({"role":"assistant","content":response},workspaceId)
+        # Update workspace with assistant response
+        self.update_workspace_history({"role":"assistant","content":response},workspaceId)
 
         return response
     

@@ -1,7 +1,7 @@
 from .LLM.index import LLM
 from .Datasources.index import Datasource
 from dotenv import load_dotenv,find_dotenv
-import os,json
+import os,json,time
 from .LLM.load_balance import LoadBalance
 
 class Source:
@@ -34,7 +34,6 @@ class Source:
 
         for source in self.sources:
             for key, instances in source.items():
-
                 for instance in instances:
                     instance_name = instance['name']
 
@@ -43,31 +42,54 @@ class Source:
                             executed_instances.add(instance_name)
 
                             if key == "llm":
-                                print(self.LLMLoadBalance.instance_load.get(instance_name, 0))
-                                if self.LLMLoadBalance.instance_load.get(instance_name, 0) >= self.LLMLoadBalance.get_max_load_for_instance(instance_name):
-                                    print(f"Instância {instance_name} atingiu a carga máxima proporcional. Tentando balancear carga.")
+                                metrics = self.LLMLoadBalance.get_instance_metrics()
+                                instance_metrics = metrics.get(instance_name, {})
+                                concurrent_requests = instance_metrics.get("concurrent_requests", 0)
+                                max_concurrent = instance_metrics.get("max_concurrent_requests", 10)
+
+                                if concurrent_requests >= max_concurrent:
+                                    print(f"Instance {instance_name} reached maximum concurrent requests. Trying to balance load.")
                                     
-                                    # Tenta encontrar uma instância com carga disponível
+                                    # Try to find an available instance
                                     selected_instance = self.LLMLoadBalance.get_instance_for_method()
                                     if selected_instance:
-                                        print(f"Selecionando outra instância para execução: {selected_instance['name']}")
+                                        print(f"Selected alternative instance: {selected_instance['name']}")
                                         instance_name = selected_instance['name']
+                                        instance = selected_instance
                                     else:
-                                        print("Nenhuma instância disponível para execução.")
+                                        print("No available instances.")
                                         return None
                             
                             obj = instance['instance']
                             
                             if hasattr(obj, method_name):
-                                method = getattr(obj, method_name)
-                                result = method(*args, **kwargs)
-
-                                if key == "llm":
-                                    print("balanceamento de carga...",self.LLMLoadBalance.proportion)
-
-                                    self.LLMLoadBalance.update_load(instance_name)
-
-                                return result
+                                start_time = time.time()
+                                try:
+                                    method = getattr(obj, method_name)
+                                    result = method(*args, **kwargs)
+                                    response_time = time.time() - start_time
+                                    
+                                    if key == "llm":
+                                        self.LLMLoadBalance.update_metrics(
+                                            instance_name,
+                                            success=True,
+                                            response_time=response_time
+                                        )
+                                        print("Load balancing proportions:", self.LLMLoadBalance.proportion)
+                                    
+                                    return result
+                                except Exception as e:
+                                    if key == "llm":
+                                        response_time = time.time() - start_time
+                                        self.LLMLoadBalance.update_metrics(
+                                            instance_name,
+                                            success=False,
+                                            response_time=response_time
+                                        )
+                                    raise e
+                                finally:
+                                    if key == "llm":
+                                        self.LLMLoadBalance.release_instance(instance_name)
                             else:
                                 return None
                         else:

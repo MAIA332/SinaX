@@ -14,3 +14,6 @@ class PrismaImplementation:
         
         await self.prisma.disconnect()
         print("Prisma disconnected")
+
+    async def get_cachedcollections(self):
+        return await self.prisma.cachedcollections.find_many()
